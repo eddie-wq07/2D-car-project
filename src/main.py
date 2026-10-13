@@ -1,5 +1,6 @@
 import tkinter as tk
 import math
+from pathlib import Path
 from PIL import Image, ImageTk
 
 head = 0 #heading angle
@@ -9,8 +10,9 @@ fwd_vel = 10 #forward velocity in pixels
 ang_vel = 0.25 #angular velocity in rad (25 rad = ~14 degrees)
 dt = 1 #change in time
 
-image_path_car = "assets/Car.png"
-image_path_background = "assets/background.png"
+asset_dir = Path(__file__).resolve().parent.parent / "assets"
+image_path_car = asset_dir / "Car.png"
+image_path_background = asset_dir / "Background.png"
 
 root = tk.Tk()
 root.title("Car Simulation")
@@ -45,19 +47,19 @@ def compute_next(x, y, h, a, f): #input: x coord, y coord, heading angle, applie
     return x, y, h
 
 def render(event):
-    global head, car, init_x, init_y, head, ang_vel, fwd_vel
+    global head, car, init_x, init_y
 
     forward_input, turn_input = keybinds[event.keysym]
     velocity = forward_input * fwd_vel
     angular_velocity = turn_input * ang_vel
 
-    new_x, new_y, new_h = compute_next(init_x, init_y, head, angular_velocity, velocity)
-    init_x, init_y, head = new_x, new_y, new_h
+    init_x, init_y, head  = compute_next(init_x, init_y, head, angular_velocity, velocity)
+
   
-    canvas.coords(car_id, new_x, new_y)
+    canvas.coords(car_id, init_x, init_y)
 
     rotated_image = car_image.rotate(
-        math.degrees(new_h), 
+        math.degrees(head), 
         expand=True
     )
     car = ImageTk.PhotoImage(image=rotated_image)
